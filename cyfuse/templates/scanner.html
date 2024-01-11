@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Code Scanner</title>
+    <!-- Include necessary CSS and scripts -->
+    <style>
+        /* Define styles for the video element */
+        #video {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <video id="video" playsinline></video>
+
+    <script>
+        // Access the user's camera and stream the video
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function(stream) {
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                video.onloadedmetadata = function(e) {
+                    video.play();
+                    scanQRCode();
+                };
+            })
+            .catch(function(err) {
+                console.error('Error accessing the camera:', err);
+            });
+
+        // Function to continuously scan for QR codes
+        function scanQRCode() {
+            const video = document.getElementById('video');
+            const canvasElement = document.createElement('canvas');
+            const canvas = canvasElement.getContext('2d');
+
+            // Continuously scan the video feed
+            setInterval(function() {
+                canvasElement.width = video.videoWidth;
+                canvasElement.height = video.videoHeight;
+                canvas.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+                const imageData = canvas.getImageData(0, 0, video.videoWidth, video.videoHeight);
+
+                // Use jsQR library to decode QR codes
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                if (code) {
+                    // If a QR code is detected, take action (e.g., display the data)
+                    console.log('QR Code detected:', code.data);
+                    // Perform any necessary action with the scanned data (e.g., send to backend)
+                }
+            }, 100);
+        }
+    </script>
+    <!-- Include the jsQR library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.0/dist/jsQR.js"></script>
+</body>
+</html>
