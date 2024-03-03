@@ -8,7 +8,7 @@
     <title>Scan QR Codes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <style>
         /* html {
@@ -53,8 +53,35 @@
             background-color: #fff;
             margin-top: 20px;
             display: inline-block;
+            font-size: 35px;
+        }
+        .congratulations-message {
+            background-color: #fac6e8;
+            color: rgb(33, 16, 16);
+            padding: 15px;
+            text-align: center;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-size: 18px;
         }
 
+        .styled-button {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        text-align: center;
+        text-decoration: none;
+        background-color: #ffc2f3; /* Primary blue color */
+        color: #fff; /* White text color */
+        border: 2px solid #007bff; /* Border color same as background */
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .styled-button:hover {
+        background-color: #0056b3; /* Darker blue color on hover */
+        color: #fff; /* White text color on hover */
+    }
 
         .letter-box {
             border: 2px solid #ccc;
@@ -97,8 +124,8 @@
             border-radius: 5px;
             border: none;
             cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
+            background-color: #f1b7e5;
+            color: rgb(66, 44, 44);
             text-decoration: none;
         }
 
@@ -119,82 +146,78 @@
             padding: 10px;
 
             text-align: center;
+        
+        
 
+        .word-box-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+        
+
+    
     </style>
 </head>
 
 <body>
-
-
-
     <div class="pseudo-body">
-
         <!-- guess the word  -->
+        <a class="styled-button" href="{{ url_for('leaderboard') }}">View Leaderboard</a>
+
+        <form action="{{ url_for('finish_game') }}" method="post">
+            <button type="submit">Finish Game</button>
+        </form>
+
         <div class="container text-center">
             <h2 class="heading mt-3" style="font-size: 45px;">GUESS THE WORD</h2>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
+            <div class="word-box-container">
+                {% for char in current_word %}
+                    <div class="box">{{ char }}</div>
+                {% endfor %}
+            </div>
 
-
+        {% if congratulations_message %}
+            <div class="congratulations-message">
+                <p>{{ congratulations_message }}</p>
+            </div>
+        {% endif %}
+        
+            
             <h2 class="heading mt-5" style="font-size: 45px;">Hint For the Word:</h2>
-            <div class="col-12 container text-left"
-                style="background-color: #fff; border:2px solid #ccc;border-radius: 5px;">
-                <p style="text-align: left; padding: 5px;">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos
-                    corporis ducimus velit? Excepturi vitae, nihil nulla corporis voluptates porro qui autem ullam.
-                    Autem ducimus necessitatibus maxime architecto quaerat adipisci, distinctio optio, sequi quos earum
-                    odio quo molestias fugit pariatur mollitia delectus et quas veritatis beatae doloremque. Maiores,
-                    libero? Non, officia.</p>
+            <div class="col-12 container text-left" style="background-color: #fff; border:2px solid #ccc;border-radius: 5px;">
+                <p style="text-align: left; padding: 5px;">{{word_hint}}</p>
             </div>
         </div>
-
-
 
         <!-- qr code scanner  -->
         <div class="container my-6 text-center">
             <h1 class="heading" style="font-size: 45px;">Scan QR Codes</h1>
             <div class="section w-2rem" style="border:2px solid #ccc;">
-                <div id="my-qr-reader">
-                </div>
+                <div id="my-qr-reader"></div>
             </div>
         </div>
-        
-            <!-- <input type="file" id="qrInput" accept="image/*">
-            <canvas id="qrCanvas"></canvas> -->
 
-
-
-
-         <!-- english letter hints  -->
+        <!-- english letter hints  -->
         <h1 class="heading text-center" style="font-size: 45px;">English Letters </h1>
         <div id="all-letters-box" class="container-fluid ">
             {% for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' %}
-            <div class="letter-box mx-2 text-center container-fluid">
-                <h3>{{ letter }}</h3>
-                <button style="width: 10rem;" onclick="showHint('{{ letter }}')">Show Hint</button>
-                <!-- <button onclick="startScanning()">Scan {{ letter }}</button> -->
-                <video id="{{ letter }}-video" autoplay></video>
-                <p id="{{ letter }}-hint" style="text-center;"></p>
-            </div>
+                <div class="letter-box mx-2 text-center container-fluid">
+                    <h3>{{ letter }}</h3>
+                    <button style="width: 10rem;" onclick="showHint('{{ letter }}')">Show Hint</button>
+                    <video id="{{ letter }}-video" autoplay></video>
+                    <p id="{{ letter }}-hint" style="text-center;"></p>
+                </div>
             {% endfor %}
         </div>
     </div>
-
 
     <div class="container-fluid footer mt-5" style="width: 100%;">
         <h1 class="text-center" style="font-weight: bold;">CyFuse</h1>
         <p>Student branch</p>
         <p>IIIT Delhi, Okhla Industrial, Phase-III, New Delhi-110020</p>
-
-        <!-- <div class="copyrights"><p>© 2021 CyFuse. All rights reserved.</p> -->
         <p class="m-0">
-        <h5>Designed and Developed by <a href="https://www.linkedin.com/in/arjit-singh-arora-076a41258/"
-                target="_blank"> Arjit Singh Arora</a> and <a
-                href="https://www.linkedin.com/in/udit-iiitd-40014123a/">Udit</a></h5>
+        <h5>Designed and Developed by <a href="https://www.linkedin.com/in/arjit-singh-arora-076a41258/" target="_blank"> Arjit Singh Arora</a> and <a href="https://www.linkedin.com/in/udit-iiitd-40014123a/">Udit</a></h5>
         </p>
     </div>
     
@@ -212,7 +235,6 @@
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.0.0/dist/jsQR.js"></script>
 
 
-
 <script>
     function domReady(fn) {
         if (
@@ -228,18 +250,53 @@
     function startScanning() {
         htmlscanner = new Html5QrcodeScanner(
             "my-qr-reader",
-            { fps: 10, qrbos: 250 }
-            , { facingMode: "environment" }
+            { fps: 10, qrbos: 250 },
+            { facingMode: "environment" }
         );
         htmlscanner.render(onScanSuccess);
     }
 
-
     domReady(function () {
-
-        // If found you qr code
         function onScanSuccess(decodeText, decodeResult) {
-            alert("You Qr is : " + decodeText, decodeResult);
+            sendDataToBackend(decodeText);
+        }
+
+        function sendDataToBackend(data) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/process_qr_code", true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+            xhr.send(JSON.stringify({ qrData: data }));
+
+            xhr.onload = function () {
+                if (xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        updateBoxes(response.indices);
+                    } else {
+                        alert("Invalid QR code. Try again.");
+                    }
+                } else {
+                    console.error("Failed to send data to the backend");
+                }
+            };
+        }
+
+        function updateBoxes(indices) {
+            indices.forEach(function (index) {
+                var box = document.getElementById("box-" + (index + 1));
+                box.innerText = current_word[index];
+            });
+
+            // Check if all boxes are filled
+            var allFilled = Array.from(document.getElementsByClassName("box")).every(function (box) {
+                return box.innerText !== "";
+            });
+
+            if (allFilled) {
+                alert("Congratulations! You guessed the word: " + current_word);
+                // Additional logic for game completion
+            }
         }
 
         let htmlscanner = new Html5QrcodeScanner(
@@ -248,17 +305,14 @@
         );
         htmlscanner.render(onScanSuccess);
     });
-
-
 </script>
+
 <script type="text/javascript">
 
     // var letterHints= "{{letter_hints}}"
     var letterHints = JSON.parse('{{ letter_hints | tojson | safe }}');
 
 
-    // var letterHints='variable'
-    console.log("helllo")
     console.log(letterHints)
 
     function showHint(letter) {
